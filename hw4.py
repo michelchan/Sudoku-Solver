@@ -24,6 +24,30 @@ def printpuzzle(dictionary):
     for i in dictionary:
         print(i, dictionary[i])
 
+# Removes option that the square cannot be
+def checkAvailable():
+    for i in range(0,6):
+
+
+
+# Takes key and returns array with index 0 with all elements in row and index 1 with all elements in column
+def getLine(key):
+    row = []
+    column = []
+    # row
+    letter = key[0]
+    # index
+    number = key[1]
+    # Iterate through the dictionary, if a key is in the same row, add to array
+    for k in sudokutionary:
+        if letter in k:
+            row.append(k)
+    # Iterate through the dictionary, if key is in the same column, add to array
+    for k in sudokutionary:
+        if number in k:
+            column.append(k)
+    return [row, column]
+
 
 with open(sys.argv[1], 'r') as text:
     # read in file, go through each line and replace '-' with 0 and remove spaces and new lines
@@ -42,5 +66,6 @@ with open(sys.argv[1], 'r') as text:
             # print(chr(sq), chr(index), i, val)
             c = chr(sq) + chr(index)
             sudokutionary[c] = val
+
     print(filteredText)
     printpuzzle(sudokutionary)
