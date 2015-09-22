@@ -7,7 +7,7 @@ sudokutionary = {}
 rows = 'ABCDEF'
 # Used to refer to row index
 columns = '123456'
-temp = {}
+changed = True
 
 
 # Prepares the dictionary
@@ -37,7 +37,7 @@ def printpuzzle(dictionary):
 
 
 # Removes option that the square cannot be
-def checkAvailable():
+def checkOne(done):
     check = ["A1", "B2", "C3", "D4", "E5", "F6"]
     for i in check:
         # cross is an array where the first element is an array of all the keys in the same row
@@ -45,12 +45,17 @@ def checkAvailable():
         cross = getLine(i)
         # for every element in the row check what its value is, can be
         for z in cross[0]:
+            # If there's only one option left, remove it from everything else
             if len(sudokutionary[z]) == 1:
                 # for every element in the row again, remove the number it can't be
                 for y in cross[0]:
                     # if the current element isn't the one its looping through, remove
-                    if z is not y:
-                        sudokutionary[y] = sudokutionary[y].replace(sudokutionary[z], "")
+                    if z != y:
+                        if sudokutionary[y] != sudokutionary[y].replace(sudokutionary[z], ""):
+                            sudokutionary[y] = sudokutionary[y].replace(sudokutionary[z], "")
+                            done = True
+                    else:
+                        pass
         # for every element in the column check what its value is, can be
         for j in cross[1]:
             if len(sudokutionary[j]) == 1:
@@ -58,13 +63,22 @@ def checkAvailable():
                 for k in cross[1]:
                     # if the current element isn't the one its looping through, remove
                     if j != k:
-                        sudokutionary[k] = sudokutionary[k].replace(sudokutionary[j], "")
+                        if sudokutionary[k] != sudokutionary[k].replace(sudokutionary[j], ""):
+                            sudokutionary[k] = sudokutionary[k].replace(sudokutionary[j], "")
+                            done = True
+                    else:
+                        pass
+        # for every element in the box check what its value is, can be
+        for j in cross[2]:
+            
+    return done
 
 
 # Takes key and returns array with index 0 with all elements in row and index 1 with all elements in column
 def getLine(key):
     row = []
     column = []
+    box = []
     # get row from first index in string
     letter = key[0]
     # get index from second index in string
@@ -77,15 +91,22 @@ def getLine(key):
     for k in sudokutionary:
         if number in k:
             column.append(k)
-    return [row, column]
-
-
-def done():
-    # goes through keys in dictionary
-    for i in sudokutionary:
-        # if every square on the board has only 1 option left then it is done
-        if len(sudokutionary[i]) != 1:
-            return False
+    if "A" in key or "B" in key:
+        if "1" in key or "2" in key or "3" in key:
+            box.extend(["A1", "A2", "A3", "B1", "B2", "B3"])
+        else:
+            box.extend(["A4", "A5", "A6", "B4", "B5", "B6"])
+    elif "C" in key or "D" in key:
+        if "1" in key or "2" in key or "3" in key:
+            box.extend(["C1", "C2", "C3", "D1", "D2", "D3"])
+        else:
+            box.extend(["C4", "C5", "C6","D4", "D5", "D6"])
+    elif "E" in key or "F":
+        if "1" in key or "2" in key or "3" in key:
+            box.extend(["E1", "E2", "E3", "F1", "F2", "F3"])
+        else:
+            box.extend(["E4", "E5", "E6", "F4", "F5", "F6"])
+    return [row, column, box]
 
 
 with open(sys.argv[1], 'r') as text:
@@ -109,9 +130,14 @@ with open(sys.argv[1], 'r') as text:
             c = chr(sq) + chr(index)
             sudokutionary[c] = val
 
-    while not done():
-        temp = sudokutionary
-        checkAvailable()
+    # Keep solving the puzzle until it is done
+    while changed:
+        changed = checkOne(False)
+        if changed == False:
+            for x in sudokutionary:
+                if len(sudokutionary[x]) > 1:
+                    sudokutionary[x] = sudokutionary[x][0]
+                    changed = True
+                    break
 
-    print(filteredText)
     printpuzzle(sudokutionary)
